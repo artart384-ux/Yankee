@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { Player } from '../entities/Player';
 import { FACTIONS, CLASSES } from '../data/gameData';
 import { SoundSynthesizer } from '../systems/SoundSynthesizer';
+import { SCHOOL_ZONES } from '../data/SchoolZonesConfig';
 
 export class NeoNavHUD {
   private scene: Phaser.Scene;
@@ -59,7 +60,8 @@ export class NeoNavHUD {
     const h = scene.cameras.main.height;
 
     // -------------------------------------------------------------
-    // 1. TOP-LEFT SMARTPHONE STATUS POD (Matching Image 2 Mockup)
+    // -------------------------------------------------------------
+    // 1. TOP-LEFT NEO-NAV STATUS POD (Matching Attached Image)
     // -------------------------------------------------------------
     this.statusContainer = scene.add.container(18, 14);
     this.statusBg = scene.add.graphics();
@@ -71,52 +73,76 @@ export class NeoNavHUD {
 
     const faction = FACTIONS[player.factionId];
 
-    // Character Face Avatar Sprite inside Circular Pod
-    const spriteKey = player.factionId === 'GEARHEADS' ? 'gearheads_brawler' :
-                      player.factionId === 'ELITES' ? 'elites_striker' : 'syndicate_delinquent';
+    // Character Face Avatar Sprite inside Square Frame (Matching Reference Image)
+    const spriteKey = `class_${player.classId.toLowerCase()}`;
     this.avatarSprite = scene.add.sprite(36, 40, spriteKey, 0);
-    this.avatarSprite.setScale(1.2);
+    this.avatarSprite.setScale(1.15);
+
+    // Settings Gear Icon next to Avatar
+    const settingsGear = scene.add.text(12, 12, '⚙️', { fontSize: '11px' }).setInteractive({ useHandCursor: true });
+    settingsGear.on('pointerdown', () => onTogglePhone());
+
+    // Header Badge: NEO-NAV
+    const neoNavHeader = scene.add.text(12, -4, 'NEO-NAV', {
+      fontFamily: 'Chakra Petch, sans-serif',
+      fontSize: '11px',
+      fontStyle: 'bold',
+      color: '#ffffff',
+      stroke: '#000',
+      strokeThickness: 3
+    });
 
     this.levelLabel = scene.add.text(78, 14, `Lv.${player.stats.level}`, {
       fontFamily: 'Share Tech Mono, monospace',
-      fontSize: '15px',
+      fontSize: '13px',
       fontStyle: 'bold',
       color: '#ffd700',
       stroke: '#000',
       strokeThickness: 3
     });
 
-    this.nameLabel = scene.add.text(130, 14, `${player.playerName} [${faction.name}]`, {
+    this.nameLabel = scene.add.text(124, 14, `${player.playerName}`, {
       fontFamily: 'Chakra Petch, sans-serif',
-      fontSize: '13px',
+      fontSize: '12px',
       fontStyle: 'bold',
-      color: faction.hexColor,
+      color: '#ffffff',
       stroke: '#000',
       strokeThickness: 3
     });
 
-    this.hpText = scene.add.text(285, 34, 'HP', {
+    this.hpText = scene.add.text(76, 32, 'HP', {
       fontFamily: 'Share Tech Mono, monospace',
-      fontSize: '10px',
-      color: '#ffffff'
+      fontSize: '9px',
+      fontStyle: 'bold',
+      color: '#ffffff',
+      stroke: '#000',
+      strokeThickness: 2
     });
 
-    this.staText = scene.add.text(285, 49, 'STA', {
+    this.staText = scene.add.text(76, 46, 'STAMINA', {
       fontFamily: 'Share Tech Mono, monospace',
-      fontSize: '10px',
-      color: '#ffffff'
+      fontSize: '9px',
+      fontStyle: 'bold',
+      color: '#ffffff',
+      stroke: '#000',
+      strokeThickness: 2
     });
 
-    this.auraText = scene.add.text(285, 64, 'AURA', {
+    this.auraText = scene.add.text(76, 60, 'AURA', {
       fontFamily: 'Share Tech Mono, monospace',
-      fontSize: '10px',
-      color: '#ffffff'
+      fontSize: '9px',
+      fontStyle: 'bold',
+      color: '#ffffff',
+      stroke: '#000',
+      strokeThickness: 2
     });
 
     this.statusContainer.add([
       this.statusBg,
       this.avatarCircle,
       this.avatarSprite,
+      settingsGear,
+      neoNavHeader,
       this.hpFill,
       this.staFill,
       this.auraFill,
@@ -145,32 +171,48 @@ export class NeoNavHUD {
     this.centerBannerContainer.add([this.centerBannerBg, this.hazardBeacon, this.centerBannerText]);
 
     // -------------------------------------------------------------
-    // 3. TOP-RIGHT DIGITAL GPS RADAR
+    // 3. TOP-RIGHT GPS RADAR (Matching Reference Image)
     // -------------------------------------------------------------
-    const rw = 120;
+    const rw = 130;
     this.radarContainer = scene.add.container(w - rw - 18, 14);
     this.radarBg = scene.add.graphics();
     this.radarBeam = scene.add.graphics();
     this.radarBlips = scene.add.graphics();
 
-    this.coordText = scene.add.text(rw / 2, rw + 8, 'X: 1200 Y: 1000', {
-      fontFamily: 'Share Tech Mono, monospace',
+    const radarHeader = scene.add.text(8, 6, 'GPS RADAR', {
+      fontFamily: 'Chakra Petch, sans-serif',
+      fontSize: '11px',
+      fontStyle: 'bold',
+      color: '#ffffff',
+      stroke: '#000',
+      strokeThickness: 3
+    });
+
+    const radarCloseBtn = scene.add.text(rw - 16, 6, '✖', {
       fontSize: '10px',
-      color: '#05d9e8',
+      color: '#ff2a6d'
+    }).setInteractive({ useHandCursor: true });
+
+    this.coordText = scene.add.text(rw / 2, rw + 4, 'CROSSROADS\nSCHOOL SQUARE // LEVEL 1-10', {
+      fontFamily: 'Chakra Petch, sans-serif',
+      fontSize: '9px',
+      fontStyle: 'bold',
+      color: '#ffffff',
+      align: 'center',
       stroke: '#000',
       strokeThickness: 2
     }).setOrigin(0.5);
 
-    this.radarContainer.add([this.radarBg, this.radarBeam, this.radarBlips, this.coordText]);
+    this.radarContainer.add([this.radarBg, radarHeader, radarCloseBtn, this.radarBeam, this.radarBlips, this.coordText]);
 
     // -------------------------------------------------------------
-    // 4. BOTTOM-CENTER ACTION HOTBAR
+    // 4. BOTTOM-CENTER ACTION HOTBAR & QUICK ITEMS
     // -------------------------------------------------------------
     this.hotbarContainer = scene.add.container(0, 0);
     this.setupHotbar();
 
     // -------------------------------------------------------------
-    // 5. BOTTOM-RIGHT PHONE BUTTON
+    // 5. BOTTOM-RIGHT CRACKED SMARTPHONE (Matching Reference Image)
     // -------------------------------------------------------------
     this.phoneBtn = this.setupPhoneButton(onTogglePhone);
   }
@@ -180,56 +222,74 @@ export class NeoNavHUD {
     const h = this.scene.cameras.main.height;
 
     const skills = this.player.skills;
-    const slotSize = 48;
-    const gap = 8;
-    const totalW = skills.length * slotSize + (skills.length - 1) * gap;
+    const slotSize = 42;
+    const gap = 6;
+    const skillsW = skills.length * slotSize + (skills.length - 1) * gap;
+    const spaceW = 70;
+    const itemsW = 3 * slotSize + 2 * gap;
+    const totalW = skillsW + 12 + spaceW + 24 + itemsW;
     const startX = (w - totalW) / 2;
-    const startY = h - 68;
+    const startY = h - 60;
 
+    // Header: DIGITAL ACTION SKILL
+    const skillHeader = this.scene.add.text(startX, startY - 18, 'DIGITAL ACTION SKILL', {
+      fontFamily: 'Chakra Petch, sans-serif',
+      fontSize: '11px',
+      fontStyle: 'bold',
+      color: '#ffffff',
+      stroke: '#000',
+      strokeThickness: 3
+    });
+    this.hotbarContainer.add(skillHeader);
+
+    // Skill Slots
     skills.forEach((skill, i) => {
       const sx = startX + i * (slotSize + gap);
       const sy = startY;
 
       const box = this.scene.add.graphics();
       box.fillStyle(0x0e111a, 0.92);
-      box.fillRoundedRect(sx, sy, slotSize, slotSize, 6);
-      box.lineStyle(2, 0x05d9e8, 0.9);
-      box.strokeRoundedRect(sx, sy, slotSize, slotSize, 6);
+      box.fillRoundedRect(sx, sy, slotSize, slotSize, 5);
+      box.lineStyle(1.5, 0x4a5568, 0.9);
+      box.strokeRoundedRect(sx, sy, slotSize, slotSize, 5);
 
-      const icon = this.scene.add.text(sx + slotSize / 2, sy + 18, skill.iconChar, {
-        fontSize: '20px'
+      const icon = this.scene.add.text(sx + slotSize / 2, sy + 16, skill.iconChar, {
+        fontSize: '18px'
       }).setOrigin(0.5);
 
-      const keyLabel = this.scene.add.text(sx + 5, sy + 32, skill.keySlot, {
+      const keyBox = this.scene.add.graphics();
+      keyBox.fillStyle(0x1a202c, 0.9);
+      keyBox.fillRoundedRect(sx + 2, sy + slotSize - 13, 14, 11, 2);
+
+      const keyLabel = this.scene.add.text(sx + 9, sy + slotSize - 8, skill.keySlot, {
         fontFamily: 'Share Tech Mono, monospace',
-        fontSize: '11px',
-        color: '#ff2a6d',
+        fontSize: '9px',
+        color: '#ffffff',
         fontStyle: 'bold'
-      });
+      }).setOrigin(0.5);
 
       const cooldownOverlay = this.scene.add.graphics();
       const cooldownText = this.scene.add.text(sx + slotSize / 2, sy + slotSize / 2, '', {
         fontFamily: 'Share Tech Mono, monospace',
-        fontSize: '14px',
+        fontSize: '13px',
         fontStyle: 'bold',
         color: '#ffffff',
         stroke: '#000',
         strokeThickness: 3
       }).setOrigin(0.5);
 
-      // Clickable hotbar slot
       const hitZone = this.scene.add.zone(sx + slotSize / 2, sy + slotSize / 2, slotSize, slotSize).setInteractive({ useHandCursor: true });
       hitZone.on('pointerdown', () => {
-        if (skill.keySlot === 'Q') this.player.executeDash(this.scene.input.activePointer);
-        else if (skill.keySlot === '1') this.player.executeAuraSkill();
-        else if (skill.keySlot === '2') this.player.executeWeaponTech();
-        else if (skill.keySlot === '3') this.player.executeSpiritBurst();
-        else if (skill.keySlot === '4') this.player.executeTonic();
-        else if (skill.keySlot === 'E') this.player.executeAwakening();
+        const ws = (this.scene as any).worldScene || (this.scene.scene ? this.scene.scene.get('WorldScene') as any : null);
+        if (ws && typeof ws.performClassSkill === 'function') {
+          ws.performClassSkill(skill.keySlot);
+        } else {
+          this.player.executeClassSkill(skill.keySlot as any, this.scene.input.activePointer.worldX, this.scene.input.activePointer.worldY);
+        }
         this.soundSynth.playPunch();
       });
 
-      this.hotbarContainer.add([box, icon, keyLabel, cooldownOverlay, cooldownText, hitZone]);
+      this.hotbarContainer.add([box, icon, keyBox, keyLabel, cooldownOverlay, cooldownText, hitZone]);
 
       this.skillSlots.push({
         box,
@@ -239,28 +299,89 @@ export class NeoNavHUD {
         icon
       });
     });
+
+    // Spacebar Button
+    const spaceX = startX + skillsW + 8;
+    const spaceBox = this.scene.add.graphics();
+    spaceBox.fillStyle(0x0e111a, 0.92);
+    spaceBox.fillRoundedRect(spaceX, startY, spaceW, slotSize, 5);
+    spaceBox.lineStyle(1.5, 0x4a5568, 0.9);
+    spaceBox.strokeRoundedRect(spaceX, startY, spaceW, slotSize, 5);
+
+    const spaceIcon = this.scene.add.text(spaceX + spaceW / 2, startY + 15, '📜', { fontSize: '16px' }).setOrigin(0.5);
+    const spaceText = this.scene.add.text(spaceX + spaceW / 2, startY + 30, 'Spacebar', {
+      fontFamily: 'Share Tech Mono, monospace',
+      fontSize: '9px',
+      color: '#ffffff'
+    }).setOrigin(0.5);
+    const spaceHitZone = this.scene.add.zone(spaceX + spaceW / 2, startY + slotSize / 2, spaceW, slotSize).setInteractive({ useHandCursor: true });
+    spaceHitZone.on('pointerdown', () => {
+      this.player.executeDodgeRoll(this.scene.input.activePointer);
+    });
+    this.hotbarContainer.add([spaceBox, spaceIcon, spaceText, spaceHitZone]);
+
+    // Header: QUICK HEALTH ITEMS
+    const itemStartX = spaceX + spaceW + 20;
+    const itemHeader = this.scene.add.text(itemStartX, startY - 18, 'QUICK HEALTH ITEMS', {
+      fontFamily: 'Chakra Petch, sans-serif',
+      fontSize: '11px',
+      fontStyle: 'bold',
+      color: '#ffffff',
+      stroke: '#000',
+      strokeThickness: 3
+    });
+    this.hotbarContainer.add(itemHeader);
+
+    // 3 Quick Health Items matching image
+    const quickItems = [
+      { icon: '🍶', count: 5, key: '1' },
+      { icon: '🥫', count: 8, key: '2' },
+      { icon: '💵', count: 13, key: '3' }
+    ];
+
+    quickItems.forEach((item, idx) => {
+      const ix = itemStartX + idx * (slotSize + gap);
+      const iy = startY;
+
+      const ibox = this.scene.add.graphics();
+      ibox.fillStyle(0x0e111a, 0.92);
+      ibox.fillRoundedRect(ix, iy, slotSize, slotSize, 5);
+      ibox.lineStyle(1.5, 0x4a5568, 0.9);
+      ibox.strokeRoundedRect(ix, iy, slotSize, slotSize, 5);
+
+      const iIcon = this.scene.add.text(ix + slotSize / 2, iy + 16, item.icon, { fontSize: '18px' }).setOrigin(0.5);
+      const iCount = this.scene.add.text(ix + slotSize - 4, iy + slotSize - 6, `${item.count}`, {
+        fontFamily: 'Share Tech Mono, monospace',
+        fontSize: '9px',
+        color: '#00ff66',
+        fontStyle: 'bold'
+      }).setOrigin(1, 1);
+
+      const iKeyBox = this.scene.add.graphics();
+      iKeyBox.fillStyle(0x1a202c, 0.9);
+      iKeyBox.fillRoundedRect(ix + 2, iy + slotSize - 13, 12, 11, 2);
+
+      const iKey = this.scene.add.text(ix + 8, iy + slotSize - 8, item.key, {
+        fontFamily: 'Share Tech Mono, monospace',
+        fontSize: '9px',
+        color: '#ffffff',
+        fontStyle: 'bold'
+      }).setOrigin(0.5);
+
+      this.hotbarContainer.add([ibox, iIcon, iCount, iKeyBox, iKey]);
+    });
   }
 
   private setupPhoneButton(onToggle: () => void): Phaser.GameObjects.Container {
     const w = this.scene.cameras.main.width;
     const h = this.scene.cameras.main.height;
-    const btn = this.scene.add.container(w - 76, h - 68);
+    const btn = this.scene.add.container(w - 75, h - 90);
 
-    const bg = this.scene.add.graphics();
-    bg.fillStyle(0x131724, 0.95);
-    bg.fillRoundedRect(0, 0, 60, 54, 10);
-    bg.lineStyle(2, 0xff2a6d, 1);
-    bg.strokeRoundedRect(0, 0, 60, 54, 10);
+    const phoneSprite = this.scene.add.image(0, 0, 'ui_cracked_phone');
+    phoneSprite.setScale(0.72);
 
-    const icon = this.scene.add.text(30, 20, '📱', { fontSize: '20px' }).setOrigin(0.5);
-    const label = this.scene.add.text(30, 42, 'NEO-NAV', {
-      fontFamily: 'Share Tech Mono, monospace',
-      fontSize: '8px',
-      color: '#05d9e8'
-    }).setOrigin(0.5);
-
-    btn.add([bg, icon, label]);
-    btn.setSize(60, 54);
+    btn.add(phoneSprite);
+    btn.setSize(75, 120);
     btn.setInteractive({ useHandCursor: true });
     btn.on('pointerdown', () => {
       this.soundSynth.playUI();
@@ -268,24 +389,15 @@ export class NeoNavHUD {
     });
 
     btn.on('pointerover', () => {
-      bg.clear();
-      bg.fillStyle(0xff2a6d, 1);
-      bg.fillRoundedRect(0, 0, 60, 54, 10);
-      bg.lineStyle(2, 0xffffff, 1);
-      bg.strokeRoundedRect(0, 0, 60, 54, 10);
+      phoneSprite.setScale(0.78);
     });
 
     btn.on('pointerout', () => {
-      bg.clear();
-      bg.fillStyle(0x131724, 0.95);
-      bg.fillRoundedRect(0, 0, 60, 54, 10);
-      bg.lineStyle(2, 0xff2a6d, 1);
-      bg.strokeRoundedRect(0, 0, 60, 54, 10);
+      phoneSprite.setScale(0.72);
     });
 
     return btn;
   }
-
   public update(currentZone: string) {
     const stats = this.player.stats;
 
@@ -298,63 +410,50 @@ export class NeoNavHUD {
     this.staFill.clear();
     this.auraFill.clear();
 
-    const pw = 360, ph = 84;
-    // Curved pod backing
-    this.statusBg.fillStyle(0x0a0c16, 0.92);
-    this.statusBg.fillRoundedRect(0, 0, pw, ph, 16);
-    this.statusBg.lineStyle(2, 0x05d9e8, 0.9);
-    this.statusBg.strokeRoundedRect(0, 0, pw, ph, 16);
+    const pw = 330, ph = 78;
+    // Dark steel rectangular frame (Matching reference image)
+    this.statusBg.fillStyle(0x0e111a, 0.95);
+    this.statusBg.fillRoundedRect(0, 0, pw, ph, 4);
+    this.statusBg.lineStyle(2, 0x4a5568, 0.9);
+    this.statusBg.strokeRoundedRect(0, 0, pw, ph, 4);
 
-    // Tech chamfer accents
-    this.statusBg.fillStyle(0xff2a6d, 1);
-    this.statusBg.fillRect(20, 0, 40, 3);
-    this.statusBg.fillStyle(0x05d9e8, 1);
-    this.statusBg.fillRect(pw - 50, ph - 3, 30, 3);
+    // Avatar Square Frame (Matching reference image)
+    this.avatarCircle.fillStyle(0x1a202c, 1);
+    this.avatarCircle.fillRoundedRect(12, 14, 52, 52, 4);
+    this.avatarCircle.lineStyle(1.5, 0x718096, 1);
+    this.avatarCircle.strokeRoundedRect(12, 14, 52, 52, 4);
 
-    // Avatar Circle Frame
-    this.avatarCircle.fillStyle(0x151a28, 1);
-    this.avatarCircle.fillCircle(36, 42, 26);
-    this.avatarCircle.lineStyle(2, 0xff2a6d, 1);
-    this.avatarCircle.strokeCircle(36, 42, 26);
+    const barX = 126, barW = 180, barH = 10;
 
-    const barX = 76, barW = 200, barH = 11;
-
-    // A) Segmented Neon Green HP Gauge
+    // A) Thick Crimson Red HP Gauge (Matching reference image)
     const hpRatio = Math.max(0, Math.min(1, stats.hp / stats.maxHp));
-    this.hpFill.fillStyle(0x1a281e, 1);
-    this.hpFill.fillRect(barX, 33, barW, barH);
-    this.hpFill.fillStyle(0x00ff66, 1);
-    this.hpFill.fillRect(barX, 33, barW * hpRatio, barH);
-    // Dark segment notches
-    this.hpFill.fillStyle(0x0a0c16, 0.7);
-    for (let s = 1; s < 8; s++) {
-      this.hpFill.fillRect(barX + (barW / 8) * s, 33, 2, barH);
-    }
-    this.hpText.setText(`${Math.round(stats.hp)} / ${stats.maxHp}`);
+    this.hpFill.fillStyle(0x2d1519, 1);
+    this.hpFill.fillRect(barX, 32, barW, barH);
+    this.hpFill.fillStyle(0xe62038, 1);
+    this.hpFill.fillRect(barX, 32, barW * hpRatio, barH);
+    this.hpFill.lineStyle(1, 0x1a0507, 1);
+    this.hpFill.strokeRect(barX, 32, barW, barH);
+    this.hpText.setText('HP');
 
-    // B) Segmented Neon Orange/Gold Stamina Gauge
+    // B) Cyan Blue Stamina Gauge (Matching reference image)
     const staRatio = Math.max(0, Math.min(1, stats.stamina / stats.maxStamina));
-    this.staFill.fillStyle(0x282012, 1);
-    this.staFill.fillRect(barX, 48, barW, barH);
-    this.staFill.fillStyle(0xffd700, 1);
-    this.staFill.fillRect(barX, 48, barW * staRatio, barH);
-    this.staFill.fillStyle(0x0a0c16, 0.7);
-    for (let s = 1; s < 8; s++) {
-      this.staFill.fillRect(barX + (barW / 8) * s, 48, 2, barH);
-    }
-    this.staText.setText(`${Math.round(stats.stamina)} / ${stats.maxStamina}`);
+    this.staFill.fillStyle(0x102530, 1);
+    this.staFill.fillRect(barX, 46, barW, barH);
+    this.staFill.fillStyle(0x00e5ff, 1);
+    this.staFill.fillRect(barX, 46, barW * staRatio, barH);
+    this.staFill.lineStyle(1, 0x051a24, 1);
+    this.staFill.strokeRect(barX, 46, barW, barH);
+    this.staText.setText('STAMINA');
 
-    // C) Segmented Neon Cyan/Purple Aura Gauge
+    // C) Deep Blue Aura Gauge (Matching reference image)
     const auraRatio = Math.max(0, Math.min(1, stats.aura / stats.maxAura));
-    this.auraFill.fillStyle(0x101f2e, 1);
-    this.auraFill.fillRect(barX, 63, barW, barH);
-    this.auraFill.fillStyle(0x05d9e8, 1);
-    this.auraFill.fillRect(barX, 63, barW * auraRatio, barH);
-    this.auraFill.fillStyle(0x0a0c16, 0.7);
-    for (let s = 1; s < 8; s++) {
-      this.auraFill.fillRect(barX + (barW / 8) * s, 63, 2, barH);
-    }
-    this.auraText.setText(`${Math.round(stats.aura)} / ${stats.maxAura}`);
+    this.auraFill.fillStyle(0x0e172a, 1);
+    this.auraFill.fillRect(barX, 60, barW, barH);
+    this.auraFill.fillStyle(0x2563eb, 1);
+    this.auraFill.fillRect(barX, 60, barW * auraRatio, barH);
+    this.auraFill.lineStyle(1, 0x070c18, 1);
+    this.auraFill.strokeRect(barX, 60, barW, barH);
+    this.auraText.setText('AURA');
 
     this.levelLabel.setText(`Lv.${stats.level}`);
 
@@ -373,9 +472,34 @@ export class NeoNavHUD {
     // -------------------------------------------------------------
     this.centerBannerBg.clear();
     this.hazardBeacon.clear();
-    const bw = 380, bh = 32;
-    const isApex = currentZone === 'APEX';
-    const bannerColor = isApex ? 0xff2a6d : 0x00ff66;
+    const bw = 500, bh = 34;
+    const schoolZone = SCHOOL_ZONES[currentZone];
+
+    let bannerTitle = '🛡️ CROSSROADS PLAZA // [SAFE TRADE HAVEN] 🛡️';
+    let bannerColor = 0x00ff66;
+    let textColor = '#00ff66';
+
+    if (schoolZone) {
+      bannerTitle = `⚡ ${schoolZone.name} // [${schoolZone.levelRange}] ⚡`;
+      bannerColor = schoolZone.themeColor;
+      textColor = schoolZone.bannerColor;
+    } else if (currentZone === 'APEX' || currentZone === 'zone_10') {
+      bannerTitle = '👑 10. ดาดฟ้าตึกเรียนหลัก [DUEL ARENA & BOSS HUB] 👑';
+      bannerColor = 0xff2a6d;
+      textColor = '#ff2a6d';
+    } else if (currentZone === 'RUST_PORT') {
+      bannerTitle = '🔧 RUST PORT GARAGE // [THE GEARHEADS WORKSHOP] 🔧';
+      bannerColor = 0xffa500;
+      textColor = '#ffa500';
+    } else if (currentZone === 'ELITES_ACADEMY') {
+      bannerTitle = '🏛️ ELITES ARCHIVE // [STUDENT COUNCIL ACADEMY] 🏛️';
+      bannerColor = 0x05d9e8;
+      textColor = '#05d9e8';
+    } else if (currentZone === 'SYNDICATE_ALLEY') {
+      bannerTitle = '🌙 SYNDICATE BACK-ALLEY // [UNDERWORLD CONFLICT] 🌙';
+      bannerColor = 0xd800ff;
+      textColor = '#d800ff';
+    }
 
     this.centerBannerBg.fillStyle(0x0b0e18, 0.92);
     this.centerBannerBg.fillRoundedRect(-bw / 2, -bh / 2, bw, bh, 8);
@@ -388,55 +512,64 @@ export class NeoNavHUD {
     this.hazardBeacon.fillCircle(-bw / 2 + 16, 0, 5);
     this.hazardBeacon.fillCircle(bw / 2 - 16, 0, 5);
 
-    if (isApex) {
-      this.centerBannerText.setText('⚡ APEX GROUND ZERO // [FREE PK ZONE] ⚡');
-      this.centerBannerText.setColor('#ff2a6d');
-    } else {
-      this.centerBannerText.setText('🛡️ CROSSROADS // [SAFE TRADE HAVEN] 🛡️');
-      this.centerBannerText.setColor('#00ff66');
-    }
+    this.centerBannerText.setText(bannerTitle);
+    this.centerBannerText.setColor(textColor);
 
     // -------------------------------------------------------------
-    // 3. UPDATE RADAR SWEEP (Top-Right)
+    // 3. UPDATE GPS RADAR (Top-Right Rectangular Mini-Map)
     // -------------------------------------------------------------
-    const rw = 120;
-    const rcx = rw / 2;
-    const rcy = rw / 2;
-    const rrad = rw / 2 - 6;
-
+    const rw = 130, rh = 120;
     this.radarBg.clear();
     this.radarBeam.clear();
     this.radarBlips.clear();
 
-    // Radar circular frame
-    this.radarBg.fillStyle(0x0a0c16, 0.92);
-    this.radarBg.fillCircle(rcx, rcy, rrad);
-    this.radarBg.lineStyle(2, 0x05d9e8, 0.9);
-    this.radarBg.strokeCircle(rcx, rcy, rrad);
+    // Dark rectangular frame
+    this.radarBg.fillStyle(0x0e111a, 0.95);
+    this.radarBg.fillRoundedRect(0, 0, rw, rh + 32, 4);
+    this.radarBg.lineStyle(2, 0x4a5568, 0.9);
+    this.radarBg.strokeRoundedRect(0, 0, rw, rh + 32, 4);
 
-    // Range rings
-    this.radarBg.lineStyle(1, 0x162a3a, 0.8);
-    this.radarBg.strokeCircle(rcx, rcy, rrad * 0.4);
-    this.radarBg.strokeCircle(rcx, rcy, rrad * 0.75);
+    // Mini-map ground area
+    this.radarBg.fillStyle(0x1a202c, 0.95);
+    this.radarBg.fillRect(6, 22, rw - 12, rh - 26);
 
-    // Crosshairs
-    this.radarBg.lineBetween(rcx, rcy - rrad, rcx, rcy + rrad);
-    this.radarBg.lineBetween(rcx - rrad, rcy, rcx + rrad, rcy);
+    // Grid lines on radar
+    this.radarBg.lineStyle(1, 0x2d3748, 0.7);
+    for (let gx = 18; gx < rw - 12; gx += 22) {
+      this.radarBg.lineBetween(gx, 22, gx, rh - 4);
+    }
+    for (let gy = 32; gy < rh - 4; gy += 18) {
+      this.radarBg.lineBetween(6, gy, rw - 6, gy);
+    }
 
-    // Radar sweeping beam
-    this.radarAngle += 0.04;
-    if (this.radarAngle > Math.PI * 2) this.radarAngle -= Math.PI * 2;
-    const beamX = rcx + Math.cos(this.radarAngle) * (rrad - 2);
-    const beamY = rcy + Math.sin(this.radarAngle) * (rrad - 2);
-    this.radarBeam.lineStyle(2, 0x00ff66, 0.8);
-    this.radarBeam.lineBetween(rcx, rcy, beamX, beamY);
+    // Player position on radar (Yellow chevron marker)
+    const mapCenter = { x: rw / 2, y: 22 + (rh - 26) / 2 };
+    this.radarBlips.fillStyle(0xffd700, 1);
+    this.radarBlips.fillTriangle(
+      mapCenter.x, mapCenter.y - 5,
+      mapCenter.x - 4, mapCenter.y + 4,
+      mapCenter.x + 4, mapCenter.y + 4
+    );
 
-    // Center player blip
-    this.radarBlips.fillStyle(0x00ff66, 1);
-    this.radarBlips.fillCircle(rcx, rcy, 3);
+    // Red Enemy Blips
+    const worldScene = this.scene.scene.get('WorldScene') as { enemies?: Array<{ x: number; y: number; isDead?: boolean }> };
+    if (worldScene?.enemies) {
+      this.radarBlips.fillStyle(0xff2a4d, 1);
+      worldScene.enemies.forEach(e => {
+        if (e.isDead) return;
+        const relX = (e.x - this.player.x) * 0.05;
+        const relY = (e.y - this.player.y) * 0.05;
+        if (Math.abs(relX) < (rw - 20) / 2 && Math.abs(relY) < (rh - 34) / 2) {
+          this.radarBlips.fillCircle(mapCenter.x + relX, mapCenter.y + relY, 2.5);
+        }
+      });
+    }
 
-    // Coordinates update
-    this.coordText.setText(`X: ${Math.round(this.player.x)}  Y: ${Math.round(this.player.y)}`);
+    if (schoolZone) {
+      this.coordText.setText(`ZONE ${schoolZone.zoneNumber} // ${schoolZone.levelRange}\n${schoolZone.subtitle.substring(0, 24)}`);
+    } else {
+      this.coordText.setText(`CROSSROADS\nCAMPUS SQUARE // LEVEL 1-15`);
+    }
 
     // -------------------------------------------------------------
     // 4. UPDATE HOTBAR COOLDOWNS

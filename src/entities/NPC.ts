@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 
-export type NPCType = 'MISS_POPPY' | 'ELIZABETH' | 'YAMATO' | 'WIN_TAXI' | 'PAWN_VENDOR';
+export type NPCType = 'MISS_POPPY' | 'ELIZABETH' | 'YAMATO' | 'WIN_TAXI' | 'PAWN_VENDOR' | 'SENIOR_GATE' | 'CAFETERIA_AUNT';
 
 export interface DialogueNode {
   speaker: string;
@@ -49,7 +49,7 @@ export class NPC extends Phaser.Physics.Arcade.Sprite {
         portrait = 'yamato_anime';
         break;
       case 'WIN_TAXI':
-        texture = 'motorcycle';
+        texture = 'prop_bosozoku_bike';
         name = 'วินลุงเดช';
         title = 'คิววินมอเตอร์ไซค์ ซิ่งข้ามโซน';
         portrait = 'yamato_anime';
@@ -59,6 +59,18 @@ export class NPC extends Phaser.Physics.Arcade.Sprite {
         name = 'เฮียเส็ง คลองถม';
         title = 'โรงรับจำนำ & ตลาดมืดนวบูรพา';
         portrait = 'miss_poppy_anime';
+        break;
+      case 'SENIOR_GATE':
+        texture = 'gearheads_brawler';
+        name = 'รุ่นพี่เคนจิ';
+        title = 'ผู้คุมกฎหน้าประตูโรงเรียน [Lv.1 Guide]';
+        portrait = 'miss_poppy_anime';
+        break;
+      case 'CAFETERIA_AUNT':
+        texture = 'elites_striker';
+        name = 'ป้าสมศรี';
+        title = 'เจ๊เจ้าของสหกรณ์ & โรงอาหาร';
+        portrait = 'elizabeth_anime';
         break;
     }
 
@@ -165,13 +177,39 @@ export class NPC extends Phaser.Physics.Arcade.Sprite {
           speaker: this.npcName,
           speakerTitle: this.npcTitle,
           portraitKey: this.portraitKey,
-          text: '“จะไปไหนน้องชาย? ลุงขับวินสายฟ้าแลบ มุดทะลุรถติดข้ามโซนได้หมด จะไปชอปปิ้งตลาดกลาง หรือจะไปโดนตบที่ Apex Ground Zero ก็บอกมาเลย!”',
+          text: '“จะไปไหนน้องชาย? ลุงขับวินสายฟ้าแลบ มุดทะลุรถติดข้ามโซนได้หมด จะไปขึ้นดาดฟ้าซูซูรัน หรือจะไปบุกโรงยิมร้างก็บอกมาเลย!”',
           options: [
-            { label: '🚏 ไป Crossroads Trade District (ตลาดกลาง)', action: () => onFastTravel?.('CROSSROADS') },
-            { label: '🏭 ไป Rust Port (เขต The Gearheads)', action: () => onFastTravel?.('RUST_PORT') },
-            { label: '🌃 ไป Neon Alley (เขต The Syndicate)', action: () => onFastTravel?.('NEON_ALLEY') },
-            { label: '🏛️ ไป Sapphire Skyline (เขต The Elites)', action: () => onFastTravel?.('SAPPHIRE') },
-            { label: '⚠️ ไป Apex Ground Zero (เขต Free PK ดงสงคราม!)', action: () => onFastTravel?.('APEX') }
+            { label: '👑 ไปดาดฟ้าตึกเรียนหลัก (Zone 10 - Boss Hub & Standoff)', action: () => onFastTravel?.('zone_10') },
+            { label: '🏫 ไปโถงทางเดินอาคารเรียน (Zone 5 - Lv.5-7)', action: () => onFastTravel?.('zone_5') },
+            { label: '🏋️ ไปโรงยิมร้าง (Zone 9 - Sub-Dungeon Lv.10-14)', action: () => onFastTravel?.('zone_9') },
+            { label: '🍜 ไปโรงอาหาร & สหกรณ์ (Zone 4 - Safe Zone)', action: () => onFastTravel?.('zone_4') },
+            { label: '🚪 กลับหน้าประตูโรงเรียน (Zone 1 - Main Spawn)', action: () => onFastTravel?.('zone_1') }
+          ]
+        };
+
+      case 'SENIOR_GATE':
+        return {
+          speaker: this.npcName,
+          speakerTitle: this.npcTitle,
+          portraitKey: this.portraitKey,
+          text: '“เฮ้ยไอ้น้องใหม่! ที่โรงเรียนนี้ไม่มีคำว่าเด็กดีหรอกเว้ย! อยากเอาตัวรอดก็ใช้ WASD เดิน คลิกซ้ายต่อย คลิกขวาหวดหนัก แล้วกด Q พุ่งหลบ! ไปลองซัดหุ่นฟางข้างๆ ก่อน ถ้าพร้อมแล้วก็เดินเข้าวาร์ปขึ้นลานหน้าเสาธงไป!”',
+          options: [
+            { label: 'รับคำแนะนำการต่อสู้ (Combat Guide)', action: () => alert('เทคนิค: คลิกซ้ายโจมตีต่อเนื่องทำคอมโบ 3 จังหวะ / คลิกขวาเพื่อ Strike ทุบกระจาย / กด 1-4 เพื่อใช้สกิล!') },
+            { label: 'ขอพลาสเตอร์ยาฟื้นพลัง x5 (Free Starter Kit)', action: () => alert('ได้รับพลาสเตอร์ยาเริ่มต้น x5 ชิ้น!') },
+            { label: 'เข้าใจแล้วครับรุ่นพี่!', action: () => {} }
+          ]
+        };
+
+      case 'CAFETERIA_AUNT':
+        return {
+          speaker: this.npcName,
+          speakerTitle: this.npcTitle,
+          portraitKey: this.portraitKey,
+          text: '“เหนื่อยไหมลูกเอ๊ย? มาแวะกินขนมปังยากิโซบะกับน้ำโซดาเย็นๆ ก่อนสิ หรือจะกดตู้น้ำอัตโนมัติข้างๆ เพื่อฟื้นเลือดให้เต็มหลอดก็ได้นะจ๊ะ!”',
+          options: [
+            { label: '🍞 ขนมปังยากิโซบะฟื้นพลัง (ฟื้นฟู HP/Stamina เต็ม)', action: () => alert('ทานขนมปังยากิโซบะร้อนๆ ฟื้นฟู HP/Stamina เต็มหลอด!') },
+            { label: '🧼 รับงานพาร์ทไทม์ล้างจาน (+100 Zen)', action: () => alert('ล้างจานเสร็จเรียบร้อย! ได้รับค่าขนม 100 Zen') },
+            { label: 'ขอบคุณครับป้า', action: () => {} }
           ]
         };
 

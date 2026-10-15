@@ -25,16 +25,48 @@ export class BootScene extends Phaser.Scene {
       }
     });
 
-    // Load HD 64x64 Character Spritesheets
-    this.load.spritesheet('gearheads_brawler', 'assets/sprites/gearheads_brawler.png', {
+    // Load HD 64x64 Character Spritesheets (7 Core Classes)
+    const coreClasses = [
+      'class_vanguard',
+      'class_brawler',
+      'class_striker',
+      'class_sharpshooter',
+      'class_supplier',
+      'class_instigator',
+      'class_saboteur'
+    ];
+    coreClasses.forEach(c => {
+      this.load.spritesheet(c, `assets/sprites/${c}.png`, {
+        frameWidth: 64,
+        frameHeight: 64
+      });
+      this.load.image(`${c}_portrait`, `assets/portraits/${c}.png`);
+    });
+
+    // Load Modular Weapons
+    const modularWeapons = [
+      'weapon_riot_shield',
+      'weapon_brass_knuckles',
+      'weapon_baseball_bat',
+      'weapon_slingshot',
+      'weapon_medkit',
+      'weapon_megaphone',
+      'weapon_wiretrap'
+    ];
+    modularWeapons.forEach(w => {
+      this.load.image(w, `assets/sprites/weapons/${w}.png`);
+    });
+
+    // Legacy faction aliases
+    this.load.spritesheet('gearheads_brawler', 'assets/sprites/class_brawler.png', {
       frameWidth: 64,
       frameHeight: 64
     });
-    this.load.spritesheet('elites_striker', 'assets/sprites/elites_striker.png', {
+    this.load.spritesheet('elites_striker', 'assets/sprites/class_striker.png', {
       frameWidth: 64,
       frameHeight: 64
     });
-    this.load.spritesheet('syndicate_delinquent', 'assets/sprites/syndicate_delinquent.png', {
+    this.load.spritesheet('syndicate_delinquent', 'assets/sprites/class_vanguard.png', {
       frameWidth: 64,
       frameHeight: 64
     });
@@ -86,6 +118,53 @@ export class BootScene extends Phaser.Scene {
     this.load.image('miss_poppy_anime', 'assets/portraits/miss_poppy_anime.jpg');
     this.load.image('elizabeth_anime', 'assets/portraits/elizabeth_anime.jpg');
     this.load.image('yamato_anime', 'assets/portraits/yamato_anime.jpg');
+
+    // Load Crows Zero / Delinquent Rooftop Map Assets
+    this.load.image('tileset_rooftop_concrete', 'assets/tiles/tileset_rooftop_concrete.png');
+    this.load.image('tile_iso_concrete', 'assets/tiles/tile_iso_concrete.png');
+    this.load.image('prop_chainlink_fence', 'assets/props/prop_chainlink_fence.png');
+    this.load.image('prop_iso_chainlink_fence', 'assets/props/prop_iso_chainlink_fence.png');
+    this.load.image('prop_iso_concrete_wall', 'assets/props/prop_iso_concrete_wall.png');
+    this.load.image('prop_iso_oil_barrels', 'assets/props/prop_iso_oil_barrels.png');
+    this.load.image('prop_iso_desk_pile', 'assets/props/prop_iso_desk_pile.png');
+    this.load.image('prop_broken_desk_pile', 'assets/props/prop_broken_desk_pile.png');
+    this.load.image('prop_oil_drum_fire', 'assets/props/prop_oil_drum_fire.png');
+    this.load.image('prop_rooftop_door_hut', 'assets/props/prop_rooftop_door_hut.png');
+    this.load.image('prop_rooftop_stair_hut_pixel', 'assets/props/prop_rooftop_stair_hut_pixel.png');
+    this.load.image('prop_rooftop_water_tank', 'assets/props/prop_rooftop_water_tank.png');
+    this.load.image('prop_bosozoku_bike', 'assets/props/prop_bosozoku_bike.png');
+    this.load.image('prop_graffiti_wall', 'assets/props/prop_graffiti_wall.png');
+    this.load.image('delinquent_rooftop_concept', 'assets/maps/delinquent_rooftop_concept.jpg');
+    this.load.image('bg_distant_city_skyline', 'assets/maps/bg_distant_city_skyline.png');
+
+    // Comic Pop Badges & Anime Impact Bursts
+    this.load.image('vfx_comic_krsh', 'assets/vfx/vfx_comic_krsh.png');
+    this.load.image('vfx_comic_exclaim', 'assets/vfx/vfx_comic_exclaim.png');
+    this.load.image('vfx_comic_crit', 'assets/vfx/vfx_comic_crit.png');
+    this.load.image('vfx_aura_burst_magenta', 'assets/vfx/vfx_aura_burst_magenta.png');
+    this.load.image('vfx_aura_burst_cyan', 'assets/vfx/vfx_aura_burst_cyan.png');
+    this.load.image('vfx_aura_burst_lime', 'assets/vfx/vfx_aura_burst_lime.png');
+
+    // UI Overhaul Assets
+    this.load.image('ui_cracked_phone', 'assets/ui/ui_cracked_phone.png');
+
+    // Japanese Delinquent High School Floor Tiles (64x32 Iso Diamonds)
+    this.load.image('tile_school_wood_parquet', 'assets/tiles/tile_school_wood_parquet.png');
+    this.load.image('tile_school_corridor_wood', 'assets/tiles/tile_school_corridor_wood.png');
+    this.load.image('tile_school_restroom_tile', 'assets/tiles/tile_school_restroom_tile.png');
+    this.load.image('tile_school_cafeteria_tile', 'assets/tiles/tile_school_cafeteria_tile.png');
+    this.load.image('tile_school_gym_parquet', 'assets/tiles/tile_school_gym_parquet.png');
+    this.load.image('tile_school_dirty_asphalt', 'assets/tiles/tile_school_dirty_asphalt.png');
+
+    // Japanese High School Room Perimeter Props (Walls, Doors, Windows, Chalkboards, Lockers)
+    this.load.image('prop_iso_school_wall_wood', 'assets/props/prop_iso_school_wall_wood.png');
+    this.load.image('prop_iso_school_window', 'assets/props/prop_iso_school_window.png');
+    this.load.image('prop_iso_school_door', 'assets/props/prop_iso_school_door.png');
+    this.load.image('prop_iso_school_chalkboard', 'assets/props/prop_iso_school_chalkboard.png');
+    this.load.image('prop_iso_shoe_lockers', 'assets/props/prop_iso_shoe_lockers.png');
+    this.load.image('prop_iso_bulletin_board', 'assets/props/prop_iso_bulletin_board.png');
+    this.load.image('prop_iso_school_gate', 'assets/props/prop_iso_school_gate.png');
+    this.load.image('prop_iso_restroom_wall', 'assets/props/prop_iso_restroom_wall.png');
   }
 
   create() {
@@ -94,13 +173,82 @@ export class BootScene extends Phaser.Scene {
   }
 
   private createGlobalAnimations() {
+    const coreClasses = [
+      'vanguard',
+      'brawler',
+      'striker',
+      'sharpshooter',
+      'supplier',
+      'instigator',
+      'saboteur'
+    ];
+
+    coreClasses.forEach(c => {
+      const textureKey = `class_${c}`;
+
+      this.anims.create({
+        key: `${c}_idle`,
+        frames: this.anims.generateFrameNumbers(textureKey, { start: 0, end: 3 }),
+        frameRate: 6,
+        repeat: -1
+      });
+
+      this.anims.create({
+        key: `${c}_walk`,
+        frames: this.anims.generateFrameNumbers(textureKey, { start: 6, end: 11 }),
+        frameRate: 10,
+        repeat: -1
+      });
+
+      this.anims.create({
+        key: `${c}_run`,
+        frames: this.anims.generateFrameNumbers(textureKey, { start: 12, end: 17 }),
+        frameRate: 12,
+        repeat: -1
+      });
+
+      this.anims.create({
+        key: `${c}_attack1`,
+        frames: this.anims.generateFrameNumbers(textureKey, { start: 18, end: 23 }),
+        frameRate: 14,
+        repeat: 0
+      });
+
+      this.anims.create({
+        key: `${c}_attack2`,
+        frames: this.anims.generateFrameNumbers(textureKey, { start: 24, end: 29 }),
+        frameRate: 14,
+        repeat: 0
+      });
+
+      this.anims.create({
+        key: `${c}_attack3`,
+        frames: this.anims.generateFrameNumbers(textureKey, { start: 30, end: 35 }),
+        frameRate: 12,
+        repeat: 0
+      });
+
+      this.anims.create({
+        key: `${c}_dash`,
+        frames: this.anims.generateFrameNumbers(textureKey, { start: 36, end: 39 }),
+        frameRate: 12,
+        repeat: 0
+      });
+
+      this.anims.create({
+        key: `${c}_hurt`,
+        frames: this.anims.generateFrameNumbers(textureKey, { start: 42, end: 45 }),
+        frameRate: 8,
+        repeat: 0
+      });
+    });
+
+    // Faction alias animations for compatibility
     const factions = ['gearheads', 'elites', 'syndicate'];
-
     factions.forEach(f => {
-      const textureKey = f === 'gearheads' ? 'gearheads_brawler' :
-                         f === 'elites' ? 'elites_striker' : 'syndicate_delinquent';
+      const textureKey = f === 'gearheads' ? 'class_brawler' :
+                         f === 'elites' ? 'class_striker' : 'class_vanguard';
 
-      // Idle (Row 0: frames 0 to 3)
       this.anims.create({
         key: `${f}_idle`,
         frames: this.anims.generateFrameNumbers(textureKey, { start: 0, end: 3 }),
@@ -108,7 +256,6 @@ export class BootScene extends Phaser.Scene {
         repeat: -1
       });
 
-      // Walk (Row 1: frames 6 to 11)
       this.anims.create({
         key: `${f}_walk`,
         frames: this.anims.generateFrameNumbers(textureKey, { start: 6, end: 11 }),
@@ -116,7 +263,6 @@ export class BootScene extends Phaser.Scene {
         repeat: -1
       });
 
-      // Run (Row 2: frames 12 to 17)
       this.anims.create({
         key: `${f}_run`,
         frames: this.anims.generateFrameNumbers(textureKey, { start: 12, end: 17 }),
@@ -124,7 +270,6 @@ export class BootScene extends Phaser.Scene {
         repeat: -1
       });
 
-      // Slash Attack 1 (Row 3: frames 18 to 23)
       this.anims.create({
         key: `${f}_attack1`,
         frames: this.anims.generateFrameNumbers(textureKey, { start: 18, end: 23 }),
@@ -132,7 +277,6 @@ export class BootScene extends Phaser.Scene {
         repeat: 0
       });
 
-      // Pierce Attack 2 (Row 4: frames 24 to 29)
       this.anims.create({
         key: `${f}_attack2`,
         frames: this.anims.generateFrameNumbers(textureKey, { start: 24, end: 29 }),
@@ -140,7 +284,6 @@ export class BootScene extends Phaser.Scene {
         repeat: 0
       });
 
-      // Crush / Heavy Strike Attack 3 (Row 5: frames 30 to 35)
       this.anims.create({
         key: `${f}_attack3`,
         frames: this.anims.generateFrameNumbers(textureKey, { start: 30, end: 35 }),
@@ -148,7 +291,6 @@ export class BootScene extends Phaser.Scene {
         repeat: 0
       });
 
-      // Dash (Row 6: frames 36 to 39)
       this.anims.create({
         key: `${f}_dash`,
         frames: this.anims.generateFrameNumbers(textureKey, { start: 36, end: 39 }),
@@ -156,7 +298,6 @@ export class BootScene extends Phaser.Scene {
         repeat: 0
       });
 
-      // Hurt (Row 7: frames 42 to 45)
       this.anims.create({
         key: `${f}_hurt`,
         frames: this.anims.generateFrameNumbers(textureKey, { start: 42, end: 45 }),

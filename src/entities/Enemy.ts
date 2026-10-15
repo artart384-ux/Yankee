@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { DamageType, StatusEffect, StatusEffectType } from '../types/game';
 import { SoundSynthesizer } from '../systems/SoundSynthesizer';
 
-export type EnemyType = 'THUG' | 'DRONE' | 'DUMMY' | 'APEX_ENFORCER';
+export type EnemyType = 'THUG' | 'DRONE' | 'DUMMY' | 'APEX_ENFORCER' | 'ROOFTOP_KING';
 
 export class Enemy extends Phaser.Physics.Arcade.Sprite {
   public enemyType: EnemyType;
@@ -21,32 +21,47 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private moveTimer: number = 0;
   private targetPlayer?: Phaser.Physics.Arcade.Sprite;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, type: EnemyType, name?: string) {
+  public level: number = 1;
+  public isMiniBoss: boolean = false;
+
+  constructor(scene: Phaser.Scene, x: number, y: number, type: EnemyType, name?: string, level: number = 1, isMiniBoss: boolean = false) {
     let texture = 'enemy_thug';
     if (type === 'DRONE') texture = 'enemy_drone';
     if (type === 'DUMMY') texture = 'training_dummy';
-    if (type === 'APEX_ENFORCER') texture = 'enemy_apex_enforcer';
+    if (type === 'APEX_ENFORCER' || type === 'ROOFTOP_KING') texture = 'enemy_apex_enforcer';
 
     super(scene, x, y, texture, 0);
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
     this.enemyType = type;
+    this.level = level;
+    this.isMiniBoss = isMiniBoss;
     this.soundSynth = SoundSynthesizer.getInstance();
 
-    if (type === 'APEX_ENFORCER') {
+    if (type === 'ROOFTOP_KING') {
+      this.enemyName = name || '👑 ทามาโอะ ซูซูรัน (The Rooftop King [BOSS])';
+      this.maxHp = 3500;
+      this.defense = 35;
+      this.expReward = 950;
+      this.setScale(1.3);
+      this.setSize(38, 30);
+      this.setOffset(14, 34);
+      this.play('enforcer_idle');
+    } else if (type === 'APEX_ENFORCER' || isMiniBoss) {
       this.enemyName = name || '⚡ ผู้คุมกฎเอเปกซ์ (Apex Enforcer [ELITE])';
-      this.maxHp = 750;
-      this.defense = 24;
-      this.expReward = 160;
+      this.maxHp = isMiniBoss ? (950 + level * 80) : 750;
+      this.defense = isMiniBoss ? (20 + level * 2) : 24;
+      this.expReward = isMiniBoss ? (220 + level * 25) : 160;
+      this.setScale(isMiniBoss ? 1.25 : 1.0);
       this.setSize(36, 28);
       this.setOffset(14, 34);
       this.play('enforcer_idle');
     } else if (type === 'THUG') {
-      this.enemyName = name || 'แก๊งเกเรนอกคอก (Rival Thug)';
-      this.maxHp = 240;
-      this.defense = 12;
-      this.expReward = 45;
+      this.enemyName = name || `แก๊งเกเรนอกคอก Lv.${level}`;
+      this.maxHp = 180 + level * 45;
+      this.defense = 8 + level * 2;
+      this.expReward = 35 + level * 10;
       this.setSize(28, 22);
       this.setOffset(18, 42);
       this.play('thug_idle');
@@ -74,10 +89,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     // Health bar & Name label
     this.healthBarBg = scene.add.graphics();
     this.healthBarFill = scene.add.graphics();
-    this.nameLabel = scene.add.text(x, y - 46, this.enemyName, {
+    const isGold = type === 'ROOFTOP_KING' || isMiniBoss;
+    this.nameLabel = scene.add.text(x, y - (type === 'ROOFTOP_KING' || isMiniBoss ? 56 : 46), this.enemyName, {
       fontFamily: 'Chakra Petch, sans-serif',
-      fontSize: '11px',
-      color: type === 'DUMMY' ? '#05d9e8' : '#ff4444',
+      fontSize: isGold ? '13px' : '11px',
+      fontStyle: isGold ? 'bold' : 'normal',
+      color: isGold ? '#ffd700' : type === 'DUMMY' ? '#05d9e8' : '#ff4444',
       stroke: '#000000',
       strokeThickness: 3
     }).setOrigin(0.5);
@@ -106,11 +123,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       if (dist < 260 && dist > 35) {
         // Chase player
         const angle = Phaser.Math.Angle.Between(this.x, this.y, this.targetPlayer.x, this.targetPlayer.y);
-        const speed = this.enemyType === 'APEX_ENFORCER' ? 70 : this.enemyType === 'THUG' ? 85 : 100;
+        const speed = this.enemyType === 'ROOFTOP_KING' ? 75 : this.enemyType === 'APEX_ENFORCER' ? 70 : this.enemyType === 'THUG' ? 85 : 100;
         this.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed * 0.7);
         this.setFlipX(this.targetPlayer.x < this.x);
 
-        if (this.enemyType === 'APEX_ENFORCER') {
+        if (this.enemyType === 'APEX_ENFORCER' || this.enemyType === 'ROOFTOP_KING') {
           this.play('enforcer_walk', true);
         } else if (this.enemyType === 'THUG') {
           this.play('thug_walk', true);
@@ -118,7 +135,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       } else if (dist <= 38) {
         // Attack range
         this.setVelocity(0, 0);
-        if (this.enemyType === 'APEX_ENFORCER') {
+        if (this.enemyType === 'APEX_ENFORCER' || this.enemyType === 'ROOFTOP_KING') {
           this.play('enforcer_attack', true);
         } else if (this.enemyType === 'THUG') {
           this.play('thug_attack', true);
@@ -131,7 +148,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           const rx = (Math.random() - 0.5) * 50;
           const ry = (Math.random() - 0.5) * 35;
           this.setVelocity(rx, ry);
-          if (this.enemyType === 'APEX_ENFORCER') {
+          if (this.enemyType === 'APEX_ENFORCER' || this.enemyType === 'ROOFTOP_KING') {
             if (Math.abs(rx) > 5) this.play('enforcer_walk', true);
             else this.play('enforcer_idle', true);
           } else if (this.enemyType === 'THUG') {
@@ -214,22 +231,23 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.healthBarBg.clear();
     this.healthBarFill.clear();
 
-    const barW = 38;
-    const barH = 5;
+    const isBoss = this.enemyType === 'ROOFTOP_KING';
+    const barW = isBoss ? 64 : 38;
+    const barH = isBoss ? 7 : 5;
     const barX = this.x - barW / 2;
-    const barY = this.y - 36;
+    const barY = this.y - (isBoss ? 44 : 36);
 
-    this.healthBarBg.fillStyle(0x101018, 0.85);
+    this.healthBarBg.fillStyle(0x101018, 0.9);
     this.healthBarBg.fillRect(barX - 1, barY - 1, barW + 2, barH + 2);
-    this.healthBarBg.lineStyle(1, 0x333344, 0.8);
+    this.healthBarBg.lineStyle(1, isBoss ? 0xffd700 : 0x333344, 0.9);
     this.healthBarBg.strokeRect(barX - 1, barY - 1, barW + 2, barH + 2);
 
     const ratio = Math.max(0, Math.min(1, this.hp / this.maxHp));
-    const fillColor = this.enemyType === 'DUMMY' ? 0x05d9e8 : ratio > 0.3 ? 0xff2a6d : 0xffaa00;
+    const fillColor = this.enemyType === 'DUMMY' ? 0x05d9e8 : isBoss ? 0xff3300 : ratio > 0.3 ? 0xff2a6d : 0xffaa00;
     this.healthBarFill.fillStyle(fillColor, 1);
     this.healthBarFill.fillRect(barX, barY, barW * ratio, barH);
 
-    this.nameLabel.setPosition(this.x, this.y - 48);
+    this.nameLabel.setPosition(this.x, this.y - (isBoss ? 58 : 48));
     this.healthBarBg.setDepth(this.y + 10);
     this.healthBarFill.setDepth(this.y + 11);
     this.nameLabel.setDepth(this.y + 12);

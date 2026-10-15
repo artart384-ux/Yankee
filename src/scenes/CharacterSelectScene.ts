@@ -231,15 +231,13 @@ export class CharacterSelectScene extends Phaser.Scene {
     // Live Aura Glow Ring
     this.previewAura = this.add.graphics();
 
-    // Player Animated Sprite (HD 64x64 upscale to 3.0x)
-    const texture = this.selectedFaction === 'GEARHEADS' ? 'gearheads_brawler' :
-                    this.selectedFaction === 'ELITES' ? 'elites_striker' : 'syndicate_delinquent';
+    // Player Animated Sprite (HD 64x64 upscale to 3.0x matching selected class)
+    const classKey = this.selectedClass.toLowerCase();
+    const texture = `class_${classKey}`;
     this.previewSprite = this.add.sprite(cx, cy + 5, texture, 0);
     this.previewSprite.setScale(3.0); // 3x HD Pixel Art Scale
 
-    const animKey = this.selectedFaction === 'GEARHEADS' ? 'gearheads_idle' :
-                    this.selectedFaction === 'ELITES' ? 'elites_idle' : 'syndicate_idle';
-    this.previewSprite.play(animKey);
+    this.previewSprite.play(`${classKey}_idle`);
 
     // Test Animation Action Buttons below preview
     const actionBtns = [
@@ -267,12 +265,12 @@ export class CharacterSelectScene extends Phaser.Scene {
       const hit = this.add.zone(bx + 25, by + 12, 50, 24).setInteractive({ useHandCursor: true });
       hit.on('pointerdown', () => {
         this.soundSynth.playUI();
-        const f = this.selectedFaction.toLowerCase();
-        const fullAnim = `${f}_${ab.animSuffix}`;
+        const c = this.selectedClass.toLowerCase();
+        const fullAnim = `${c}_${ab.animSuffix}`;
         if (this.previewSprite) {
           this.previewSprite.play(fullAnim);
           this.previewSprite.once('animationcomplete', () => {
-            this.previewSprite?.play(`${f}_idle`);
+            this.previewSprite?.play(`${c}_idle`);
           });
         }
       });
@@ -390,7 +388,7 @@ export class CharacterSelectScene extends Phaser.Scene {
       fontFamily: 'Chakra Petch, sans-serif',
       fontSize: '11px',
       color: '#c0c8dd',
-      wordWrap: { width: iw - 32 },
+      wordWrap: { width: iw - 100 },
       lineSpacing: 3
     });
 
@@ -400,10 +398,21 @@ export class CharacterSelectScene extends Phaser.Scene {
       color: '#ffd700'
     });
 
-    this.infoContainer.add([
+    // High-Res Class Portrait Badge
+    const classPortraitKey = `class_${this.selectedClass.toLowerCase()}_portrait`;
+    let classPortrait: Phaser.GameObjects.Image | undefined;
+    if (this.textures.exists(classPortraitKey)) {
+      classPortrait = this.add.image(iw - 50, 305, classPortraitKey);
+      classPortrait.setDisplaySize(68, 96);
+    }
+
+    const containerChildren: Phaser.GameObjects.GameObject[] = [
       bg, leaderTitle, leaderSub, homeBase, passiveTitle,
       passiveLines, divider, classHeader, classDesc, classSub
-    ]);
+    ];
+    if (classPortrait) containerChildren.push(classPortrait);
+
+    this.infoContainer.add(containerChildren);
   }
 
   private createStartButton() {
@@ -474,12 +483,10 @@ export class CharacterSelectScene extends Phaser.Scene {
 
     // Update center preview sprite
     if (this.previewSprite) {
-      const texture = this.selectedFaction === 'GEARHEADS' ? 'gearheads_brawler' :
-                      this.selectedFaction === 'ELITES' ? 'elites_striker' : 'syndicate_delinquent';
+      const classKey = this.selectedClass.toLowerCase();
+      const texture = `class_${classKey}`;
       this.previewSprite.setTexture(texture);
-      const animKey = this.selectedFaction === 'GEARHEADS' ? 'gearheads_idle' :
-                      this.selectedFaction === 'ELITES' ? 'elites_idle' : 'syndicate_idle';
-      this.previewSprite.play(animKey);
+      this.previewSprite.play(`${classKey}_idle`);
     }
 
     // Update info panel

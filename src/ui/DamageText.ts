@@ -13,47 +13,53 @@ export class DamageTextManager {
     const isCrit = result.isCrit;
     const damage = result.damage;
 
-    // 1. COMIC EXPLOSION BADGE ("KAPOW!", "SLAM!", "CRITICAL!")
-    if (isCrit || damage > 300) {
-      const isKapow = Math.random() > 0.5;
-      const burstTexture = isKapow ? 'vfx_kapow_burst' : 'vfx_slam_burst';
-      const comicWord = isKapow ? 'KAPOW!' : 'SLAM!';
-      const badgeAngle = (Math.random() - 0.5) * 24;
+    // 1. COMIC EXPLOSION BADGE ("KRSH!!", "!!?", "CRIT!")
+    if (isCrit || damage > 150) {
+      let badgeTexture = 'vfx_comic_krsh';
+      if (isCrit) {
+        badgeTexture = 'vfx_comic_crit';
+      } else if (Math.random() > 0.5) {
+        badgeTexture = 'vfx_comic_exclaim';
+      }
 
-      if (this.scene.textures.exists(burstTexture)) {
-        const badge = this.scene.add.image(x, y - 28, burstTexture);
+      const badgeAngle = (Math.random() - 0.5) * 16;
+      if (this.scene.textures.exists(badgeTexture)) {
+        const badge = this.scene.add.image(x + (Math.random() - 0.5) * 30, y - 36, badgeTexture);
         badge.setScale(0.2);
         badge.setAngle(badgeAngle);
-        badge.setDepth(y + 350);
-
-        const badgeText = this.scene.add.text(x, y - 28, comicWord, {
-          fontFamily: 'Chakra Petch, sans-serif',
-          fontSize: '14px',
-          fontStyle: 'bold',
-          color: isKapow ? '#ffffff' : '#05d9e8',
-          stroke: '#000000',
-          strokeThickness: 4
-        }).setOrigin(0.5).setAngle(badgeAngle).setDepth(y + 351).setScale(0.2);
+        badge.setDepth(y + 400);
 
         this.scene.tweens.add({
-          targets: [badge, badgeText],
-          scale: 1.15,
-          y: y - 42,
-          duration: 220,
+          targets: badge,
+          scale: 1.25,
+          y: y - 50,
+          duration: 180,
           ease: 'Back.easeOut',
           onComplete: () => {
             this.scene.tweens.add({
-              targets: [badge, badgeText],
+              targets: badge,
               alpha: 0,
-              y: y - 56,
-              duration: 350,
-              delay: 150,
-              onComplete: () => {
-                badge.destroy();
-                badgeText.destroy();
-              }
+              y: y - 68,
+              duration: 320,
+              delay: 180,
+              onComplete: () => badge.destroy()
             });
           }
+        });
+      }
+
+      // Neon Aura Burst underneath the strike
+      const auraType = isCrit ? 'vfx_aura_burst_lime' : (Math.random() > 0.5 ? 'vfx_aura_burst_magenta' : 'vfx_aura_burst_cyan');
+      if (this.scene.textures.exists(auraType)) {
+        const burst = this.scene.add.image(x, y - 10, auraType);
+        burst.setScale(0.4);
+        burst.setDepth(y + 250);
+        this.scene.tweens.add({
+          targets: burst,
+          scale: 1.3,
+          alpha: 0,
+          duration: 260,
+          onComplete: () => burst.destroy()
         });
       }
 

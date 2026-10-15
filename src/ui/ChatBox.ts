@@ -18,6 +18,17 @@ export class ChatBox {
     this.container = scene.add.container(20, h - 210);
     this.container.setDepth(900);
 
+    // Header Title: TEENAGE CHAT BOX
+    const chatHeader = scene.add.text(4, -18, 'TEENAGE CHAT BOX', {
+      fontFamily: 'Chakra Petch, sans-serif',
+      fontSize: '11px',
+      fontStyle: 'bold',
+      color: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 3
+    });
+    this.container.add(chatHeader);
+
     this.bgGraphics = scene.add.graphics();
     this.container.add(this.bgGraphics);
 
