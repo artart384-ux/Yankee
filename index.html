@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Project Yankee - Web MMORPG (Action-Brawler)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #0d0e15;
+      font-family: 'Chakra Petch', sans-serif;
+    }
+    #game-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    canvas {
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -webkit-crisp-edges;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 42, 109, 0.2);
+    }
+    #loading-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, #1a102f 0%, #08080f 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      color: #fff;
+      transition: opacity 0.5s ease;
+    }
+    .neon-title {
+      font-size: 3rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: #fff;
+      text-transform: uppercase;
+      text-shadow:
+        0 0 5px #ff2a6d,
+        0 0 15px #ff2a6d,
+        0 0 30px #05d9e8;
+      margin-bottom: 8px;
+    }
+    .sub-title {
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      color: #05d9e8;
+      margin-bottom: 24px;
+      font-family: 'Share Tech Mono', monospace;
+    }
+    .loader-bar {
+      width: 320px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid #ff2a6d;
+    }
+    .loader-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #ff2a6d, #05d9e8, #00ff66);
+      transition: width 0.2s ease;
+    }
+    .loader-text {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: #aaa;
+      font-family: 'Share Tech Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <div id="loading-screen">
+      <div class="neon-title">PROJECT YANKEE</div>
+      <div class="sub-title">NAWABORAPHA // STREET-PUNK MMORPG</div>
+      <div class="loader-bar">
+        <div class="loader-fill" id="loader-progress"></div>
+      </div>
+      <div class="loader-text" id="loader-status">BOOTING SYSTEM...</div>
+    </div>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
+
